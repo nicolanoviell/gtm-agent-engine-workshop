@@ -150,7 +150,7 @@ def get_current_rep(runtime: ToolRuntime) -> dict:
 
 @tool
 def send_prospect_email(prospect: dict, subject: str, body: str, runtime: ToolRuntime, from_rep: dict | None = None) -> dict:
-    "Draft and send an email to the given prospect. Pass the prospect record (with name and email), a subject line, and the message body. The sending rep defaults to the signed-in rep."
+    "Send a plain-text email to the given prospect; it cannot attach files. Never say a file is attached, and if the rep asks to send a document, tell them it was not attached. The sending rep defaults to the signed-in rep."
     record = data_service.get_prospect_record(prospect.get("prospect_id"))
     if record is None:
         return {"status": "blocked", "error": "Prospect record not found; email not sent."}
@@ -194,7 +194,9 @@ SYSTEM_PROMPT = (
     "As a first step in any request, always call the get_current_rep tool to "
     "identify the signed-in rep making the request.\n\n"
     "When a rep asks you to email a prospect, use the send tool. If a send "
-    "is blocked, tell the rep it was not sent and why."
+    "is blocked, tell the rep it was not sent and why. If a request "
+    "needs something the tools cannot do (e.g. attaching a pricing deck), tell "
+    "the rep explicitly what was not included."
 )
 
 agent_model = ChatOpenAI(model=MODEL_NAME, temperature=0)
